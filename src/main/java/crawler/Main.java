@@ -1,6 +1,5 @@
 package crawler;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -13,8 +12,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         final String FILENAME = "data/raw_data.json";
-        final String startURL = "https://bn.wikipedia.org/wiki/প্রধান_পাতা";
-        final int max_depth = 1;
+        final String startURL = "https://genshin-impact.fandom.com/wiki/Barbara/Voice-Overs";
 
         HashMap<Number, Queue<String>> urls_to_be_searched = new HashMap<>();
         Map<String, HashMap<String, Object>> data = new HashMap<>(); // url -> {title, times_appeared}
@@ -23,24 +21,18 @@ public class Main {
         startList.add(startURL);
         urls_to_be_searched.put(curr_depth, startList);
 
-        // for (int i = 0; i < max_depth; i++) {
-        //     while (!urls_to_be_searched.get(i).isEmpty()) {
-                try {
-                    String curr_url = urls_to_be_searched.get(0).poll();
-                    Document doc = Jsoup.connect(curr_url).get();
-                    Map<String, HashMap<String, Object>> temp = Helper.getUrlsInPage(doc, true, data);
-                    data.putAll(temp);
-                    urls_to_be_searched.get(0).addAll(temp.keySet());
+        try {
+            String curr_url = urls_to_be_searched.get(0).poll();
+            Document doc = Jsoup.connect(curr_url).get();
+            Map<String, HashMap<String, Object>> temp = Helper.getUrlsInPage(doc, true, data);
+            data.putAll(temp);
+            urls_to_be_searched.get(0).addAll(temp.keySet());
 
-                } catch (Exception e) {
-                    ;
-                }
-                
-        //     }
-        // }
-        Helper.writeToJson(FILENAME, data, false);
+        } catch (Exception e) {
+            ;
+        }
         
-
+        Helper.writeToJson(FILENAME, data, false);
     }
 
 }

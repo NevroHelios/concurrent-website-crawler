@@ -5,6 +5,9 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,14 +42,15 @@ public class Helper {
 
         Elements urlLiElements = doc.getElementsByAttribute("href");
         for (Element urlElement : urlLiElements) {
-            String title = urlElement.attr("title");
+            String title = urlElement.attr("title").split(".ogg")[0]; // remove .ogg from title
             if (title.isEmpty()) {
                 continue; 
             }
             String href = urlElement.absUrl("href");
-            if (href.isEmpty() || !href.contains("https://bn.wikipedia.org/")) { // get bangla sites
+            if (href.isEmpty() || !href.contains(".ogg")) { 
                 continue; // skip if no href
             }
+            href = href.split(".ogg")[0] + ".ogg"; // helps with downloading the audio files
             Number timesAppeared = (Number) data.getOrDefault(href, new HashMap<>()).getOrDefault("times_appeared", 0);
 
             if (verbose) System.out.printf("%s -> \t%s\n", title, href);
@@ -55,9 +59,33 @@ public class Helper {
             info.put("title", title);
             info.put("times_appeared", timesAppeared.intValue() + 1);
             data.put(href, info);
+
+            // saveAudioFiles(href, "data/audio_files");
         }
         if (verbose) System.out.println("\n");
         return data;
+    }
+
+    public static void saveAudioFiles(String url, String audioDir) {
+        Path dirPath = Paths.get(audioDir);
+        try {
+            Files.createDirectories(dirPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ProcessBuilder builder = new ProcessBuilder(
+            "curl", url, "--output", audioDir + "/" + url.split("/")[-1].split(".ogg")[0] + ".mp3"
+        );
+
+        try {
+            Process process = builder.start();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.out.println("Error with: " + url);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void writeToJson(String fileName, Map<String, HashMap<String, Object>> data, Boolean append) {
