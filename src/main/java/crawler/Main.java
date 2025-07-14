@@ -21,6 +21,7 @@ public class Main {
         startList.add(startURL);
         urls_to_be_searched.put(curr_depth, startList);
 
+        // TODO: Implement a depth-based crawling mechanism
         try {
             String curr_url = urls_to_be_searched.get(0).poll();
             Document doc = Jsoup.connect(curr_url).get();
