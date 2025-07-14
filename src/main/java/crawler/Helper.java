@@ -60,13 +60,13 @@ public class Helper {
             info.put("times_appeared", timesAppeared.intValue() + 1);
             data.put(href, info);
 
-            // saveAudioFiles(href, "data/audio_files");
+            saveAudioFiles(href, "data/audio_files", title);
         }
         if (verbose) System.out.println("\n");
         return data;
     }
 
-    public static void saveAudioFiles(String url, String audioDir) {
+    public static void saveAudioFiles(String url, String audioDir, String title) {
         Path dirPath = Paths.get(audioDir);
         try {
             Files.createDirectories(dirPath);
@@ -74,7 +74,7 @@ public class Helper {
             e.printStackTrace();
         }
         ProcessBuilder builder = new ProcessBuilder(
-            "curl", url, "--output", audioDir + "/" + url.split("/")[-1].split(".ogg")[0] + ".mp3"
+            "curl", url, "--output", dirPath + "/" + title + ".mp3"
         );
 
         try {
@@ -85,6 +85,7 @@ public class Helper {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Failed to download: " + url);
         }
     }
 
